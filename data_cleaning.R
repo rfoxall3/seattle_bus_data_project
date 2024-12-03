@@ -57,15 +57,17 @@ decwk4 <- rbind(dec22, dec23, dec24, dec25, dec26, dec27, dec28)
 
 # lateness analysis
 #   lateness = actual arrival time - scheduled arrival time
-#   convert to period (hh:mm:ss format)
-#   remove outliers from weird operation where a bus is over an hour late or over an hour early
-# also add something to indicate weekend vs weekday service
+#   remove outliers from weird operation where a bus is over 1.5 hrs late or over an hour early
+# add indication of weekend vs weekday service
+# add information about number of stops/routes per day and avg passengers per day
 decwk4 <- decwk4 %>%
   mutate(lateness = first_act_arr_time - sched_arr_time) %>%
-  mutate(lateness = seconds_to_period(lateness)) %>%
-  filter(lateness < seconds_to_period(as.period(hours(2)))) %>%
-  filter(lateness > seconds_to_period(as.period(hours(-2)))) %>%
-  mutate(weekday = if_else(weekdays(operation_date) %in% c("Saturday","Sunday"), "weekend", "weekday"))
+  filter(lateness > -3600) %>%
+  filter(lateness < 5400) %>%
+  mutate(weekday = if_else(weekdays(operation_date) %in% c("Saturday","Sunday"), "weekend", "weekday")) %>%
+  group_by(operation_date, stop_id) %>% mutate(dly_stops = n(), avg_psg_per_stop = mean(psngr_load)) %>%
+  ungroup() %>% group_by(operation_date, service_rte_num) %>% mutate(dly_trips = n()) %>%
+  select(-psngr_load)
 
 #save the weekly csv with desired data
 write_csv(decwk4,"decwk4.csv")
@@ -109,15 +111,18 @@ decwk5 <- rbind(dec29, dec30, dec31)
 
 # lateness analysis
 #   lateness = actual arrival time - scheduled arrival time
-#   convert to period (hh:mm:ss format)
-#   remove outliers from weird operation where a bus is over an hour late or over an hour early
-# also add something to indicate weekend vs weekday service
+#   remove outliers from weird operation where a bus is over 1.5 hrs late or over an hour early
+# add indication of weekend vs weekday service
+# add information about number of stops/routes per day and avg passengers per day
 decwk5 <- decwk5 %>%
   mutate(lateness = first_act_arr_time - sched_arr_time) %>%
-  mutate(lateness = seconds_to_period(lateness)) %>%
-  filter(lateness < seconds_to_period(as.period(hours(2)))) %>%
-  filter(lateness > seconds_to_period(as.period(hours(-2)))) %>%
-  mutate(weekday = if_else(weekdays(operation_date) %in% c("Saturday","Sunday"), "weekend", "weekday"))
+  filter(lateness > -3600) %>%
+  filter(lateness < 5400) %>%
+  select(operation_date,service_rte_num,patt_direction,stop_id,psngr_load,lateness) %>%
+  mutate(weekday = if_else(weekdays(operation_date) %in% c("Saturday","Sunday"), "weekend", "weekday")) %>%
+  group_by(operation_date, stop_id) %>% mutate(dly_stops = n(), avg_psg_per_stop = mean(psngr_load)) %>%
+  ungroup() %>% group_by(operation_date, service_rte_num) %>% mutate(dly_trips = n()) %>%
+  select(-psngr_load)
 
 #save the weekly csv with desired data
 write_csv(decwk5,"decwk5.csv")
@@ -126,7 +131,7 @@ write_csv(decwk5,"decwk5.csv")
 decwk5_summary <- decwk5 %>% group_by(weekday, stop_id) %>% summarize(reliability = mean(lateness))
 decwk5_byroute <- decwk5 %>% group_by(weekday, service_rte_num) %>% summarize(reliability = mean(lateness))
 
-#save the summary csv just in case
+#save the summary csv 
 write_csv(decwk5_summary, "decwk5_summary.csv")
 write_csv(decwk5_byroute, "decwk5_byroute.csv")
 
