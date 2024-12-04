@@ -30,13 +30,26 @@ source_table <-
 cleaner_table <- source_table %>%
   mutate(month = str_sub(source_table$filename,20,22), week = as.numeric(str_sub(source_table$filename,25,25))) %>%
   mutate(week_start = as.Date(paste0(month,(week*7-6),'.23'),format='%b%d.%y')) %>%
-  select(-filename) 
+  select(-filename) %>%
+  mutate(reliability2 = seconds_to_period(reliability)) %>%
+  group_by(service_rte_num, weekday) %>%
+  mutate(yrly_rel = mean(reliability)) %>% ungroup()
+
+# now we want the top 10 least reliable (latest) routes for the year
+reliability_list <- cleaner_table %>%
+  group_by(service_rte_num, weekday) %>%
+  summarize(yrly_rel = mean(reliability))
+
+write_csv(reliability_list, "reliability_list.csv")
 
 # here we can select and view a single route's reliability over the year
 table1 <- cleaner_table %>%
-  filter(service_rte_num == 271)
+  filter(service_rte_num == 33)
 
-ggplot(table1, aes(x = week_start, y = reliability, color = weekday)) +
+# then we can plot that route's reliability for weekends/weekdays throughout the year
+# this graph will also show the yearly average for weekends/weekdays
+ggplot(table1, aes(x = week_start, y = reliability2, color = weekday)) +
   geom_line() +
-  labs(title = "Reliability Over Time", x = "Week Of", y = "Average Lateness (minutes)") +
-  scale_color_manual(values = c("weekday" = "blue", "weekend" = "red"))
+  labs(title = "Reliability Over Time", x = "Week Of", y = "Average Lateness (seconds)") +
+  scale_color_manual(values = c("weekday" = "blue", "weekend" = "red")) +
+  geom_hline(aes(yintercept = yrly_rel, color = weekday), linetype = "dashed")
