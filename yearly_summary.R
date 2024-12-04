@@ -33,15 +33,25 @@ cleaner_table <- source_table %>%
   select(-filename) %>%
   mutate(reliability2 = seconds_to_period(reliability)) %>%
   group_by(service_rte_num, weekday) %>%
-  mutate(yrly_rel = mean(reliability)) %>% ungroup()
+  mutate(week_rel = mean(reliability)) %>% ungroup() %>%
+  group_by(service_rte_num) %>%
+  mutate(yrly_rel = mean(reliability))
 
 # now we want the top 10 least reliable (latest) routes for the year in order
-reliability_list <- cleaner_table %>%
+reliability_list_weekday <- cleaner_table %>%
   group_by(service_rte_num, weekday) %>%
-  summarize(yrly_rel = mean(reliability)) %>%
-  arrange(yrly_rel)
+  summarize(week_rel = mean(reliability)) %>%
+  arrange(week_rel)
 
-write_csv(reliability_list, "reliability_list.csv")
+reliability_list_overall <- cleaner_table %>%
+  group_by(service_rte_num) %>%
+  summarize(yrly_rel = mean(reliability)) %>%
+  arrange(yrly_rel, descending = T)
+
+reliability_list <- left_join(reliability_list_weekday, reliability_list_overall, by = "service_rte_num")
+
+write_csv(reliability_list_weekday, "reliability_list_weekday.csv")
+write_csv(reliability_list_overall, "reliability_list_overall.csv")
 
 # here we can select and view a single route's reliability over the year
 table1 <- cleaner_table %>%
@@ -53,13 +63,18 @@ ggplot(table1, aes(x = week_start, y = reliability2, color = weekday)) +
   geom_line() +
   labs(title = "Reliability Over Time", x = "Week Of", y = "Average Lateness (seconds)") +
   scale_color_manual(values = c("weekday" = "blue", "weekend" = "red")) +
-  geom_hline(aes(yintercept = yrly_rel, color = weekday), linetype = "dashed")
+  geom_hline(aes(yintercept = week_rel, color = weekday), linetype = "dashed")
 
 # the above is an exploratory graph; now we need to make a more useful descriptive map for analysis
 # top ten late bus routes showing weekend and weekday reliability
 # removes routes without weekend service
-table2 <- reliability_list %>% pivot_wider(names_from = weekday, values_from = yrly_rel) %>% 
-  rename(route = service_rte_num, weekday_lateness = weekday, weekend_lateness = weekend) %>% na.omit
+table2 <- reliability_list %>% pivot_wider(names_from = weekday, values_from = week_rel) %>% 
+  rename(route = service_rte_num, weekday_lateness = weekday, weekend_lateness = weekend, overall_lateness = yrly_rel)
+
+## TO DO
+# modify dot plot to show all top 10 late routes
+# include yearly means too
+# for routes with no weekend service, just show one dot
 
 # listing top ten latest routes (that have both weekday and weekend service)
 # also converting lateness into minutes for the sake of our graph being easier to understand
@@ -77,5 +92,4 @@ ggplot(late10) +
   theme(
     legend.position = "top",
   ) +
-  xlab("Route Number") +
-  ylab("Lateness (minutes past scheduled time)")
+  labs(title = "How Late are the 10 Latest Buses in Seattle?", subtitle= "Buses Run Even Later on Weekends", x="Route Number", y="Lateness (minutes past scheduled time)")
