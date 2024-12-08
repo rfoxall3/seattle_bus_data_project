@@ -45,12 +45,12 @@ cleaner_table <- source_table %>%
 reliability_list_weekday <- cleaner_table %>%
   group_by(service_rte_num, weekday) %>%
   summarize(week_rel = mean(reliability)) %>%
-  arrange(week_rel)
+  arrange(desc(week_rel))
 
 reliability_list_overall <- cleaner_table %>%
   group_by(service_rte_num) %>%
   summarize(yrly_rel = mean(reliability)) %>%
-  arrange(yrly_rel, descending = T)
+  arrange(desc(yrly_rel))
 
 reliability_list <- left_join(reliability_list_weekday, reliability_list_overall, by = "service_rte_num")
 
@@ -77,13 +77,13 @@ reliability_list_updated <- read_csv("reliability_list_updated.csv")
 table2 <- reliability_list_updated %>% 
   pivot_wider(names_from = weekday, values_from = week_rel) %>% 
   rename(weekday_lateness = weekday, weekend_lateness = weekend, overall_lateness = yrly_rel) %>%
-  arrange(overall_lateness)
+  arrange(desc(overall_lateness))
 
 
 # listing top ten latest routes (that have both weekday and weekend service)
 # also converting lateness into minutes for the sake of our graph being easier to understand
 
-late10 <- table2 %>% filter(route %in% c(193, 11, 17, 208, 271, 153, 162, 8, 111, 255)) %>%
+late10 <- head(table2, n=10L) %>%
   mutate(overall_lateness = overall_lateness/60, weekday_lateness = weekday_lateness/60, weekend_lateness = weekend_lateness/60 ) %>%
   mutate(route=factor(route))
 
