@@ -1,0 +1,11 @@
+stop_id,auth_name,bearing_code,jurisdiction,route_list,num_shelters,overall_lateness,stop_name
+1570,Seattle,E,SEA,3 4,1,-0.6085394493180443,James St & 5th Ave
+25798,Seattle,N,SEA,372E 982EN 986EN 987EN 988EN 989EN,1,-0.6087432652450161,25th Ave NE & NE 80th St
+5880,Seattle,S,SEA,5,1,-0.6629076416531525,Phinney Ave N & N 65th St
+39530,Seattle,S,SEA,57,0,-0.8566970034247722,55th Ave SW & SW Dakota St
+12841,Seattle,S,SEA,322,0,-0.9505615045822237,12th Ave & E Alder St
+10325,Seattle,N,SEA,70 C,1,-1.0692405619304328,Fairview Ave N & Valley St
+1010,Seattle,E,SEA,111 177,0,-1.4212575233582398,Howell St & Minor Ave
+9586,Seattle,W,SEA,48,0,-1.4866614688433493,NE 50th St & University Way NE
+29431,Seattle,S,SEA,79,0,-2.4294806993376428,15th Ave NE & NE Pacific St
+29455,Seattle,W,SEA,44,1,-2.817130385889664,NE 45th St & 9th Ave NE

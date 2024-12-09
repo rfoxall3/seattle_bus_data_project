@@ -70,6 +70,10 @@ stop_info <- stop_info %>%
 # left join prioritizes stop info dataset (so we can see what's missing from the reliability data)
 test <- left_join(stop_info, reliability_list_overall, by="stop_id")
 
+raw <- read_csv("results_for_2023-01-26.csv") %>% clean_names()
+test2 <- left_join(stop_info, raw, by="stop_id")
+write_csv(test2, "test_join_stopinfo_raw0126.csv")
+
 # slightly more cleaning here -- first turning reliability into minutes rather than seconds
 # also making a single variable called "stop name" that gives the cross-street info
 stop_reliability <- test %>%
@@ -77,8 +81,7 @@ stop_reliability <- test %>%
   arrange(desc(yrly_rel_mins)) %>%
   select(-hastus_cross_street_name, -in_service_flag, -auth_code) %>%
   mutate(stop_name = paste0(on_street_name, " & ", cf_cross_streetname)) %>%
-  select(-cf_cross_streetname, -on_street_name) %>%
-  filter(is.na(yrly_rel_mins) == F)
+  select(-cf_cross_streetname, -on_street_name)
 
 write_csv(stop_reliability, "stop_reliability.csv")
 
@@ -87,3 +90,15 @@ stop_reliability_seattle <- stop_reliability %>%
   filter(jurisdiction == "SEA")
 
 write_csv(stop_reliability_seattle, "stop_reliability_seattle.csv")
+
+# making a list of top 10 latest buses
+table2 <- stop_reliability_seattle %>%
+  rename(overall_lateness = yrly_rel_mins) %>%
+  select(-kcm_managed_equipment, -yrly_rel) %>%
+  arrange(desc(overall_lateness))
+
+late10 <- head(table2, n=10L) 
+write_csv(late10, "top10late_stops.csv")
+
+early10 <- tail(table2, n=10L) 
+write_csv(early10, "top10early_stops.csv")

@@ -1,0 +1,11 @@
+stop_id,auth_name,bearing_code,jurisdiction,route_list,num_shelters,overall_lateness,stop_name
+10653,Seattle,W,SEA,62,0,9.634707258946426,NOAA AcRd & Unnamed
+12470,Seattle,N,SEA,11,1,6.6382321390434855,43rd Ave E & E Madison St
+30160,Seattle,W,SEA,106 107 9E,1,6.291702413707884,S Henderson St & Renton Ave S
+18930,Seattle,N,SEA,17E,0,6.22949844334945,32nd Ave NW & Loyal Way NW
+29865,Seattle,E,SEA,44,1,5.726792360061591,NE 45th St & Roosevelt Way NE
+41981,Seattle,S,SEA,193E,0,5.503374772079937,9th Ave & Spring St
+29254,Seattle,S,SEA,43 48 988EN,1,5.501607142857143,23rd Ave E & E Aloha St
+22260,Seattle,W,SEA,21 22 C,1,5.40262740858462,SW Roxbury St & 28th Ave SW
+31680,Seattle,W,SEA,132 60 987E,1,5.376527777777778,S Cloverdale St & 12th Ave S
+3250,Seattle,E,SEA,2 988E,0,5.208543360433604,E Union St & 32nd Ave
