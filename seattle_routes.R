@@ -112,7 +112,7 @@ discont_23 <- inner_join(discontinued_buses, reliability_list, by = "route")
 reliability_list <- reliability_list %>%
   filter(!route %in% discont_23$route)
 
-# making a list to export into a nice datawrapper table!
+# making a list with overall reliability to export into a nice datawrapper table!
 year_reliability_list <- reliability_list %>%
   select(route, yrly_rel) %>%
   distinct(route, .keep_all = TRUE)
@@ -120,3 +120,6 @@ year_reliability_list <- reliability_list %>%
 year_routes_reliable <- left_join(year_reliability_list, all_routes, by = c("route"="Route"))
 
 write_csv(year_routes_reliable, "reliability_list_cleaned.csv")
+
+# also making a list with weekend/weekday info for the yearly_summary file
+write_csv(reliability_list, "reliability_list_updated.csv")
