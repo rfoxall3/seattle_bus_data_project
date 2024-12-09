@@ -77,7 +77,8 @@ stop_reliability <- test %>%
   arrange(desc(yrly_rel_mins)) %>%
   select(-hastus_cross_street_name, -in_service_flag, -auth_code) %>%
   mutate(stop_name = paste0(on_street_name, " & ", cf_cross_streetname)) %>%
-  select(-cf_cross_streetname, -on_street_name)
+  select(-cf_cross_streetname, -on_street_name) %>%
+  filter(is.na(yrly_rel_mins) == F)
 
 write_csv(stop_reliability, "stop_reliability.csv")
 
